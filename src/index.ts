@@ -11,8 +11,10 @@ const TOKENS_PATH = join(__dirname, "..", "tokens.json");
 const IMAGE = "dev-container";
 const LABEL = "dev-container.managed=true";
 
+const TokensSchema = z.record(z.string(), z.string());
+
 function loadToken(repo: string): string {
-  const tokens = JSON.parse(readFileSync(TOKENS_PATH, "utf-8")) as Record<string, string>;
+  const tokens = TokensSchema.parse(JSON.parse(readFileSync(TOKENS_PATH, "utf-8")));
   if (!(repo in tokens)) {
     throw new Error(`Repo '${repo}' is not configured in tokens.json.`);
   }
