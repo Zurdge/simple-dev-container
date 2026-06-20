@@ -26,10 +26,12 @@ function loadToken(repo: string): string {
 function run(
   cmd: string[],
   timeoutMs = 60_000,
+  env?: Record<string, string>,
 ): { stdout: string; stderr: string; exitCode: number } {
   const result = spawnSync(cmd[0], cmd.slice(1), {
     encoding: "utf-8",
     timeout: timeoutMs,
+    env: env ? { ...process.env, ...env } : undefined,
   });
   return {
     stdout: result.stdout ?? "",
@@ -117,6 +119,36 @@ server.registerTool(
     const repos = Object.keys(tokens);
     if (repos.length === 0) return ok("No repos configured in tokens.json.");
     return ok(repos.join("\n"));
+  },
+);
+
+server.registerTool(
+  "gh_run",
+  {
+    description:
+      "Run a gh CLI command authenticated with the token for a configured repo.",
+    inputSchema: {
+      repo: z.string().describe("Repo key in tokens.json"),
+      command: z
+        .string()
+        .describe(
+          "gh subcommand and args, e.g. 'pr list' or 'issue create --title \"Fix\"'",
+        ),
+    },
+  },
+  async ({ repo, command }) => {
+    let token: string;
+    try {
+      token = loadToken(repo);
+    } catch (e) {
+      return err((e as Error).message);
+    }
+    const result = run(["sh", "-c", `gh ${command}`], 60_000, {
+      GH_TOKEN: token,
+    });
+    const output = (result.stdout + result.stderr).trim();
+    const status = result.exitCode !== 0 ? `[exit ${result.exitCode}]` : "[ok]";
+    return ok(output ? `${status}\n${output}` : status);
   },
 );
 

@@ -59,6 +59,15 @@ Starts a long-running container for a repo. Looks up the token from `tokens.json
 | `repo` | string | Key in `tokens.json` |
 | `task_name` | string | Docker container name, e.g. `task-1` |
 
+### `gh_run`
+
+Run a `gh` CLI command authenticated with the token for a configured repo. No container required — runs directly on the host.
+
+| Parameter | Type | Description |
+|---|---|---|
+| `repo` | string | Key in `tokens.json` |
+| `command` | string | gh subcommand and args, e.g. `pr list` or `issue create --title "Fix"` |
+
 ### `repo_list`
 
 Lists all repo keys configured in `tokens.json`. Use this to discover which repos are available before calling `task_start`.
