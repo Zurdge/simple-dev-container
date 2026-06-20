@@ -59,6 +59,10 @@ Starts a long-running container for a repo. Looks up the token from `tokens.json
 | `repo` | string | Key in `tokens.json` |
 | `task_name` | string | Docker container name, e.g. `task-1` |
 
+### `repo_list`
+
+Lists all repo keys configured in `tokens.json`. Use this to discover which repos are available before calling `task_start`.
+
 ### `task_list`
 
 Lists all running containers managed by this server.
