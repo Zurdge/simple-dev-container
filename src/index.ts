@@ -143,9 +143,13 @@ server.registerTool(
     } catch (e) {
       return err((e as Error).message);
     }
-    const result = run(["sh", "-c", `gh ${command}`], 60_000, {
-      GH_TOKEN: token,
-    });
+    const result = run([
+      "docker", "run", "--rm",
+      "--entrypoint", "sh",
+      "-e", `GH_TOKEN=${token}`,
+      IMAGE,
+      "-c", `gh ${command}`,
+    ]);
     const output = (result.stdout + result.stderr).trim();
     const status = result.exitCode !== 0 ? `[exit ${result.exitCode}]` : "[ok]";
     return ok(output ? `${status}\n${output}` : status);
